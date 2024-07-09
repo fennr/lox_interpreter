@@ -3,21 +3,50 @@ use core::fmt;
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     // Single character tokens
-    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
-    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
-    
-    BANG, BANG_EQUAL,
-    EQUAL, EQUAL_EQUAL,
-    GREATER, GREATER_EQUAL,
-    LESS, LESS_EQUAL,
+    LEFT_PAREN,
+    RIGHT_PAREN,
+    LEFT_BRACE,
+    RIGHT_BRACE,
+    COMMA,
+    DOT,
+    MINUS,
+    PLUS,
+    SEMICOLON,
+    SLASH,
+    STAR,
+
+    BANG,
+    BANG_EQUAL,
+    EQUAL,
+    EQUAL_EQUAL,
+    GREATER,
+    GREATER_EQUAL,
+    LESS,
+    LESS_EQUAL,
     COMMENT,
-    
+
     // Literals
-    IDENTIFIER, STRING, NUMBER,
-    
+    IDENTIFIER,
+    STRING,
+    NUMBER,
+
     // Keywords
-    AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
+    AND,
+    CLASS,
+    ELSE,
+    FALSE,
+    FUN,
+    FOR,
+    IF,
+    NIL,
+    OR,
+    PRINT,
+    RETURN,
+    SUPER,
+    THIS,
+    TRUE,
+    VAR,
+    WHILE,
 
     EOF,
     UNKNOWN,
@@ -47,6 +76,10 @@ impl fmt::Display for TokenType {
             TokenType::LESS => "LESS",
             TokenType::LESS_EQUAL => "LESS_EQUAL",
             TokenType::COMMENT => "COMMENT",
+
+            TokenType::STRING => "STRING",
+            TokenType::IDENTIFIER => "IDENTIFIER",
+            TokenType::NUMBER => "NUMBER",
 
             TokenType::EOF => "EOF",
             _ => "UNKNOWN",

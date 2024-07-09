@@ -1,7 +1,8 @@
 /// mcfr4g
 use crate::token::{Token, TokenType};
-use std::{arch::x86_64::_SIDD_LEAST_SIGNIFICANT, iter::Peekable};
-
+use core::hash;
+use std::clone::{self, Clone};
+use std::{arch::x86_64::_SIDD_LEAST_SIGNIFICANT, collections::binary_heap::Iter, iter::Peekable};
 
 #[derive(Debug, Clone)]
 pub struct Lexer {
@@ -42,32 +43,92 @@ impl Lexer {
         println!("EOF  null");
     }
 
-    fn scan_token<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token> 
-    where I: Iterator<Item = char> {
+    fn scan_token<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token>
+    where
+        I: Iterator<Item = char> + Clone,
+    {
         let token = match ch {
-            '(' => Some(Token::new(TokenType::LEFT_PAREN, ch.to_string(), "null".to_string(), line)),
-            ')' => Some(Token::new(TokenType::RIGHT_PAREN, ch.to_string(), "null".to_string(), line)),
-            '{' => Some(Token::new(TokenType::LEFT_BRACE, ch.to_string(), "null".to_string(), line)),
-            '}' => Some(Token::new(TokenType::RIGHT_BRACE, ch.to_string(), "null".to_string(), line)),
-            ',' => Some(Token::new(TokenType::COMMA, ch.to_string(), "null".to_string(), line)),
-            '.' => Some(Token::new(TokenType::DOT, ch.to_string(), "null".to_string(), line)),
-            '-' => Some(Token::new(TokenType::MINUS, ch.to_string(), "null".to_string(), line)),
-            '+' => Some(Token::new(TokenType::PLUS, ch.to_string(), "null".to_string(), line)),
-            ';' => Some(Token::new(TokenType::SEMICOLON, ch.to_string(), "null".to_string(), line)),
-            '*' => Some(Token::new(TokenType::STAR, ch.to_string(), "null".to_string(), line)),
+            '(' => Some(Token::new(
+                TokenType::LEFT_PAREN,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            ')' => Some(Token::new(
+                TokenType::RIGHT_PAREN,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            '{' => Some(Token::new(
+                TokenType::LEFT_BRACE,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            '}' => Some(Token::new(
+                TokenType::RIGHT_BRACE,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            ',' => Some(Token::new(
+                TokenType::COMMA,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            '.' => Some(Token::new(
+                TokenType::DOT,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            '-' => Some(Token::new(
+                TokenType::MINUS,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            '+' => Some(Token::new(
+                TokenType::PLUS,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            ';' => Some(Token::new(
+                TokenType::SEMICOLON,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
+            '*' => Some(Token::new(
+                TokenType::STAR,
+                ch.to_string(),
+                "null".to_string(),
+                line,
+            )),
             '!' | '=' | '<' | '>' | '/' => self.scan_comparison_operator(line, ch, iter),
             '"' => self.scan_string(line, iter),
+            '0'..='9' => self.scan_number(line, ch, iter),
             _ => {
                 self.error_text = format!("Unexpected character: {}", ch);
                 self.error_code = 65;
                 None
-            },
+            }
         };
         token
     }
 
-    fn scan_comparison_operator<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token> 
-    where I: Iterator<Item = char> {
+    fn scan_comparison_operator<I>(
+        &mut self,
+        line: usize,
+        ch: char,
+        iter: &mut Peekable<I>,
+    ) -> Option<Token>
+    where
+        I: Iterator<Item = char>,
+    {
         let next_char = iter.peek();
         let (token_type, lexeme) = match (ch, next_char) {
             ('=', Some('=')) => (TokenType::EQUAL_EQUAL, "==".to_string()),
@@ -88,8 +149,10 @@ impl Lexer {
         Some(Token::new(token_type, lexeme, "null".to_string(), line))
     }
 
-    fn scan_string<I>(&mut self, line: usize, iter: &mut Peekable<I>) -> Option<Token> 
-    where I: Iterator<Item = char> {
+    fn scan_string<I>(&mut self, line: usize, iter: &mut Peekable<I>) -> Option<Token>
+    where
+        I: Iterator<Item = char>,
+    {
         let mut string = String::new();
         let mut last_char = '"';
         while let Some(current_char) = iter.next() {
@@ -104,8 +167,48 @@ impl Lexer {
             self.error_text = "Unterminated string.".to_string();
             None
         } else {
-            Some(Token::new(TokenType::STRING, format!("\"{}\"", string), string, line))
+            Some(Token::new(
+                TokenType::STRING,
+                format!("\"{}\"", string),
+                string,
+                line,
+            ))
         }
     }
-}
 
+    fn scan_number<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token>
+    where
+        I: Iterator<Item = char> + Clone,
+    {
+        let mut clone_iter = iter.clone();
+        let mut string = String::new();
+        let mut has_dot = false;
+        string.push(ch);
+        while let Some(current_char) = clone_iter.peek() {
+            match current_char {
+                '0'..='9' => string.push(*current_char),
+                '.' => {
+                    if has_dot {
+                        break;
+                    }
+                    has_dot = true;
+                    string.push(*current_char);
+                }
+                _ => break,
+            }
+            clone_iter.next();
+        }
+        let mut literal = string.clone();
+        if string.ends_with('.') {
+            string.pop();
+            literal.push('0');
+        }
+        for _ in 0..string.len() - 1 {
+            iter.next();
+        }
+        if !has_dot {
+            literal.push_str(&".0");
+        }
+        Some(Token::new(TokenType::NUMBER, string, literal, line))
+    }
+}
