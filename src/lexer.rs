@@ -48,34 +48,32 @@ impl Lexer {
             ';' => Some(Token::new(TokenType::SEMICOLON, ch.to_string(), "null".to_string(), line)),
             '*' => Some(Token::new(TokenType::STAR, ch.to_string(), "null".to_string(), line)),
             '/' => Some(Token::new(TokenType::SLASH, ch.to_string(), "null".to_string(), line)),
-            '!' => if let Some('=') = iter.peek() {
-                iter.next();
-                Some(Token::new(TokenType::BANG_EQUAL, "!=".to_string(), "null".to_string(), line))
-            } else {
-                Some(Token::new(TokenType::BANG, ch.to_string(), "null".to_string(), line))
-            },
-            '=' => if let Some('=') = iter.peek() {
-                iter.next();
-                Some(Token::new(TokenType::EQUAL_EQUAL, "==".to_string(), "null".to_string(), line))
-            } else {
-                Some(Token::new(TokenType::EQUAL, ch.to_string(), "null".to_string(), line))
-            },
-            '<' => if let Some('=') = iter.peek() {
-                iter.next();
-                Some(Token::new(TokenType::LESS_EQUAL, "<=".to_string(), "null".to_string(), line))
-            } else {
-                Some(Token::new(TokenType::LESS, ch.to_string(), "null".to_string(), line))
-            },
-            '>' => if let Some('=') = iter.peek() {
-                iter.next();
-                Some(Token::new(TokenType::GREATER_EQUAL, ">=".to_string(), "null".to_string(), line))
-            } else {
-                Some(Token::new(TokenType::GREATER, ch.to_string(), "null".to_string(), line))
-            },
+            '!' | '=' | '<' | '>' => self.scan_comparison_operator(line, ch, iter),
             '\n' => Some(Token::new(TokenType::EOL, TokenType::EOL.to_string(), TokenType::EOL.to_string(), line)),
             _ => None,
         };
         token
+    }
+
+    fn scan_comparison_operator<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token> 
+    where I: Iterator<Item = char> {
+        let next_char = iter.peek();
+        let (token_type, lexeme) = match (ch, next_char) {
+            ('=', Some('=')) => (TokenType::EQUAL_EQUAL, "==".to_string()),
+            ('!', Some('=')) => (TokenType::BANG_EQUAL, "!=".to_string()),
+            ('<', Some('=')) => (TokenType::LESS_EQUAL, "<=".to_string()),
+            ('>', Some('=')) => (TokenType::GREATER_EQUAL, ">=".to_string()),
+            ('<', Some('>')) => (TokenType::EOL, TokenType::EOL.to_string()),
+            ('=', _) => (TokenType::EQUAL, ch.to_string()),
+            ('!', _) => (TokenType::BANG, ch.to_string()),
+            ('<', _) => (TokenType::LESS, ch.to_string()),
+            ('>', _) => (TokenType::GREATER, ch.to_string()),
+            _ => unreachable!(),
+        };
+        if lexeme.len() > 1 {
+            iter.next();
+        }
+        Some(Token::new(token_type, lexeme, "null".to_string(), line))
     }
 }
 
