@@ -2,6 +2,7 @@
 use crate::token::{Token, TokenType};
 use core::hash;
 use std::clone::{self, Clone};
+use std::collections::HashMap;
 use std::{arch::x86_64::_SIDD_LEAST_SIGNIFICANT, collections::binary_heap::Iter, iter::Peekable};
 
 #[derive(Debug, Clone)]
@@ -229,6 +230,24 @@ impl Lexer {
     where
         I: Iterator<Item = char>,
     {
+        let mut keywords = HashMap::new();
+        keywords.insert("and".to_string(), TokenType::AND);
+        keywords.insert("class".to_string(), TokenType::CLASS);
+        keywords.insert("else".to_string(), TokenType::ELSE);
+        keywords.insert("false".to_string(), TokenType::FALSE);
+        keywords.insert("for".to_string(), TokenType::FOR);
+        keywords.insert("fun".to_string(), TokenType::FUN);
+        keywords.insert("if".to_string(), TokenType::IF);
+        keywords.insert("nil".to_string(), TokenType::NIL);
+        keywords.insert("or".to_string(), TokenType::OR);
+        keywords.insert("print".to_string(), TokenType::PRINT);
+        keywords.insert("return".to_string(), TokenType::RETURN);
+        keywords.insert("super".to_string(), TokenType::SUPER);
+        keywords.insert("this".to_string(), TokenType::THIS);
+        keywords.insert("true".to_string(), TokenType::TRUE);
+        keywords.insert("var".to_string(), TokenType::VAR);
+        keywords.insert("while".to_string(), TokenType::WHILE);
+
         let mut string = ch.to_string();
         while let Some(current_char) = iter.peek() {
             match current_char {
@@ -239,11 +258,20 @@ impl Lexer {
                 _ => break,
             }
         }
-        Some(Token::new(
-            TokenType::IDENTIFIER,
-            string,
-            "null".to_string(),
-            line,
-        ))
+        if keywords.contains_key(&string) {
+            Some(Token::new(
+                keywords.get(&string).unwrap().clone(),
+                string,
+                "null".to_string(),
+                line,
+            ))
+        } else {
+            Some(Token::new(
+                TokenType::IDENTIFIER,
+                string,
+                "null".to_string(),
+                line,
+            ))
+        }
     }
 }
