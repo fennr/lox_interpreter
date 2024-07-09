@@ -4,6 +4,7 @@ use core::fmt;
 pub enum TokenType {
     // Single character tokens
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
+    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
     
 
     EOL,
@@ -18,6 +19,13 @@ impl fmt::Display for TokenType {
             TokenType::RIGHT_PAREN => "RIGHT_PAREN",
             TokenType::LEFT_BRACE => "LEFT_BRACE",
             TokenType::RIGHT_BRACE => "RIGHT_BRACE",
+            TokenType::COMMA => "COMMA",
+            TokenType::DOT => "DOT",
+            TokenType::MINUS => "MINUS",
+            TokenType::PLUS => "PLUS",
+            TokenType::SEMICOLON => "SEMICOLON",
+            TokenType::SLASH => "SLASH",
+            TokenType::STAR => "STAR",
             TokenType::EOL => "EOL",
             TokenType::EOF => "EOF",
             _ => "UNKNOWN",
