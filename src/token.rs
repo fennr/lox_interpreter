@@ -1,6 +1,6 @@
 use core::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     // Single character tokens
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
@@ -10,6 +10,7 @@ pub enum TokenType {
     EQUAL, EQUAL_EQUAL,
     GREATER, GREATER_EQUAL,
     LESS, LESS_EQUAL,
+    COMMENT,
     
     // Literals
     IDENTIFIER, STRING, NUMBER,
@@ -18,7 +19,6 @@ pub enum TokenType {
     AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
     PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 
-    EOL,
     EOF,
     UNKNOWN,
 }
@@ -46,8 +46,8 @@ impl fmt::Display for TokenType {
             TokenType::GREATER_EQUAL => "GREATER_EQUAL",
             TokenType::LESS => "LESS",
             TokenType::LESS_EQUAL => "LESS_EQUAL",
+            TokenType::COMMENT => "COMMENT",
 
-            TokenType::EOL => "EOL",
             TokenType::EOF => "EOF",
             _ => "UNKNOWN",
         };
@@ -55,7 +55,7 @@ impl fmt::Display for TokenType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
