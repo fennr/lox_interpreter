@@ -68,7 +68,7 @@ impl Lexer {
             },
             '>' => if let Some('=') = iter.peek() {
                 iter.next();
-                Some(Token::new(TokenType::GREATER_EQUAL, "!=".to_string(), "null".to_string(), line))
+                Some(Token::new(TokenType::GREATER_EQUAL, ">=".to_string(), "null".to_string(), line))
             } else {
                 Some(Token::new(TokenType::GREATER, ch.to_string(), "null".to_string(), line))
             },
