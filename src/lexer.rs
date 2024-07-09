@@ -5,6 +5,11 @@ use std::clone::{self, Clone};
 use std::collections::HashMap;
 use std::{arch::x86_64::_SIDD_LEAST_SIGNIFICANT, collections::binary_heap::Iter, iter::Peekable};
 
+const RESERVED_WORDS: [&str; 16] = [
+    "and", "class", "else", "false", "for", "fun", "if", "nil", "or", "print", "return", "super",
+    "this", "true", "var", "while",
+];
+
 #[derive(Debug, Clone)]
 pub struct Lexer {
     source: String,
@@ -226,52 +231,41 @@ impl Lexer {
         }
     }
 
-    fn scan_identifier<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token>
+    fn scan_identifier<I>(&mut self, line: usize, first_char: char, iter: &mut Peekable<I>) -> Option<Token>
     where
         I: Iterator<Item = char>,
     {
-        let mut keywords = HashMap::new();
-        keywords.insert("and".to_string(), TokenType::AND);
-        keywords.insert("class".to_string(), TokenType::CLASS);
-        keywords.insert("else".to_string(), TokenType::ELSE);
-        keywords.insert("false".to_string(), TokenType::FALSE);
-        keywords.insert("for".to_string(), TokenType::FOR);
-        keywords.insert("fun".to_string(), TokenType::FUN);
-        keywords.insert("if".to_string(), TokenType::IF);
-        keywords.insert("nil".to_string(), TokenType::NIL);
-        keywords.insert("or".to_string(), TokenType::OR);
-        keywords.insert("print".to_string(), TokenType::PRINT);
-        keywords.insert("return".to_string(), TokenType::RETURN);
-        keywords.insert("super".to_string(), TokenType::SUPER);
-        keywords.insert("this".to_string(), TokenType::THIS);
-        keywords.insert("true".to_string(), TokenType::TRUE);
-        keywords.insert("var".to_string(), TokenType::VAR);
-        keywords.insert("while".to_string(), TokenType::WHILE);
-
-        let mut string = ch.to_string();
-        while let Some(current_char) = iter.peek() {
-            match current_char {
+        let mut identifier = String::from(first_char);
+        while let Some(c) = iter.peek() {
+            match c {
                 'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => {
-                    string.push(*current_char);
+                    identifier.push(*c);
                     iter.next();
                 }
                 _ => break,
             }
         }
-        if keywords.contains_key(&string) {
-            Some(Token::new(
-                keywords.get(&string).unwrap().clone(),
-                string,
-                "null".to_string(),
-                line,
-            ))
-        } else {
-            Some(Token::new(
-                TokenType::IDENTIFIER,
-                string,
-                "null".to_string(),
-                line,
-            ))
-        }
+
+        let token_type = match identifier.as_ref() {
+            "and" => TokenType::AND,
+            "class" => TokenType::CLASS,
+            "else" => TokenType::ELSE,
+            "false" => TokenType::FALSE,
+            "for" => TokenType::FOR,
+            "fun" => TokenType::FUN,
+            "if" => TokenType::IF,
+            "nil" => TokenType::NIL,
+            "or" => TokenType::OR,
+            "print" => TokenType::PRINT,
+            "return" => TokenType::RETURN,
+            "super" => TokenType::SUPER,
+            "this" => TokenType::THIS,
+            "true" => TokenType::TRUE,
+            "var" => TokenType::VAR,
+            "while" => TokenType::WHILE,
+            _ => TokenType::IDENTIFIER,
+        };
+
+        Some(Token::new(token_type, identifier, "null".to_string(), line))
     }
 }

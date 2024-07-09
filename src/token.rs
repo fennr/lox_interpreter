@@ -81,6 +81,23 @@ impl fmt::Display for TokenType {
             TokenType::IDENTIFIER => "IDENTIFIER",
             TokenType::NUMBER => "NUMBER",
 
+            TokenType::AND => "AND",
+            TokenType::CLASS => "CLASS",
+            TokenType::ELSE => "ELSE",
+            TokenType::FALSE => "FALSE",
+            TokenType::FUN => "FUN",
+            TokenType::FOR => "FOR",
+            TokenType::IF => "IF",
+            TokenType::NIL => "NIL",
+            TokenType::OR => "OR",
+            TokenType::PRINT => "PRINT",
+            TokenType::RETURN => "RETURN",
+            TokenType::SUPER => "SUPER",
+            TokenType::THIS => "THIS",
+            TokenType::TRUE => "TRUE",
+            TokenType::VAR => "VAR",
+            TokenType::WHILE => "WHILE",
+
             TokenType::EOF => "EOF",
             _ => "UNKNOWN",
         };
