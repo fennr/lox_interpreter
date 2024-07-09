@@ -1,15 +1,15 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
-use std::process::exit;
+use std::process::ExitCode;
 mod lexer;
 mod token;
 
-fn main() {
+fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         writeln!(io::stderr(), "Usage: {} tokenize <filename>", args[0]).unwrap();
-        return;
+        return ExitCode::from(64);
     }
 
     let command = &args[1];
@@ -27,16 +27,19 @@ fn main() {
 
             // Uncomment this block to pass the first stage
             if !file_contents.is_empty() {
-                let lexer = lexer::Lexer::new(file_contents);
-                let result = lexer.tokenize();
-                exit(result)
+                let mut lexer = lexer::Lexer::new(file_contents);
+                lexer.tokenize();
+                if lexer.error_code != 0 {
+                    return ExitCode::from(lexer.error_code);
+                }
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
         }
         _ => {
             writeln!(io::stderr(), "Unknown command: {}", command).unwrap();
-            return;
+            return ExitCode::from(65);
         }
     }
+    return ExitCode::SUCCESS;
 }
