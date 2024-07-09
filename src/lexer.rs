@@ -1,12 +1,14 @@
 /// mcfr4g
 use crate::token::{Token, TokenType};
-use std::iter::Peekable;
+use std::{arch::x86_64::_SIDD_LEAST_SIGNIFICANT, iter::Peekable};
+
 
 #[derive(Debug, Clone)]
 pub struct Lexer {
     source: String,
     tokens: Vec<Token>,
     pub error_code: u8,
+    pub error_text: String,
 }
 
 impl Lexer {
@@ -15,6 +17,7 @@ impl Lexer {
             source,
             tokens: Vec::new(),
             error_code: 0,
+            error_text: String::new(),
         }
     }
 
@@ -32,8 +35,7 @@ impl Lexer {
                     }
                     println!("{:?} {} {}", token.token_type, token.lexeme, token.literal);
                 } else {
-                    self.error_code = 65;
-                    eprintln!("[line {}] Error: Unexpected character: {}", line_index + 1, current_char);
+                    eprintln!("[line {}] Error: {}", line_index + 1, self.error_text);
                 }
             }
         }
@@ -54,7 +56,12 @@ impl Lexer {
             ';' => Some(Token::new(TokenType::SEMICOLON, ch.to_string(), "null".to_string(), line)),
             '*' => Some(Token::new(TokenType::STAR, ch.to_string(), "null".to_string(), line)),
             '!' | '=' | '<' | '>' | '/' => self.scan_comparison_operator(line, ch, iter),
-            _ => None,
+            '"' => self.scan_string(line, iter),
+            _ => {
+                self.error_text = format!("Unexpected character: {}", ch);
+                self.error_code = 65;
+                None
+            },
         };
         token
     }
@@ -79,6 +86,26 @@ impl Lexer {
             iter.next();
         }
         Some(Token::new(token_type, lexeme, "null".to_string(), line))
+    }
+
+    fn scan_string<I>(&mut self, line: usize, iter: &mut Peekable<I>) -> Option<Token> 
+    where I: Iterator<Item = char> {
+        let mut string = String::new();
+        let mut last_char = '"';
+        while let Some(current_char) = iter.next() {
+            last_char = current_char;
+            if current_char == '"' {
+                break;
+            }
+            string.push(current_char);
+        }
+        if last_char != '"' {
+            self.error_code = 65;
+            self.error_text = "Unterminated string.".to_string();
+            None
+        } else {
+            Some(Token::new(TokenType::STRING, format!("\"{}\"", string), string, line))
+        }
     }
 }
 
