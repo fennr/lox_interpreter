@@ -111,6 +111,7 @@ impl Lexer {
             '!' | '=' | '<' | '>' | '/' => self.scan_comparison_operator(line, ch, iter),
             '"' => self.scan_string(line, iter),
             '0'..='9' => self.scan_number(line, ch, iter),
+            'a'..='z' | 'A'..='Z' | '_' => self.scan_identifier(line, ch, iter),
             _ => {
                 self.error_text = format!("Unexpected character: {}", ch);
                 self.error_code = 65;
@@ -209,6 +210,40 @@ impl Lexer {
         if !has_dot {
             literal.push_str(&".0");
         }
-        Some(Token::new(TokenType::NUMBER, string, literal, line))
+        Some(Token::new(TokenType::NUMBER, string, Lexer::format_float_from_string(literal), line))
+    }
+
+    fn format_float_from_string(value: String) -> String {
+        let f: f64 = match value.parse() {
+            Ok(v) => v,
+            Err(_) => 0.0,
+        };
+        if f.fract() == 0.0 {
+            format!("{:.1}", f)
+        } else {
+            f.to_string()
+        }
+    }
+
+    fn scan_identifier<I>(&mut self, line: usize, ch: char, iter: &mut Peekable<I>) -> Option<Token>
+    where
+        I: Iterator<Item = char>,
+    {
+        let mut string = ch.to_string();
+        while let Some(current_char) = iter.peek() {
+            match current_char {
+                'a'..='z' | 'A'..='Z' | '0'..='9' | '_' => {
+                    string.push(*current_char);
+                    iter.next();
+                }
+                _ => break,
+            }
+        }
+        Some(Token::new(
+            TokenType::IDENTIFIER,
+            string,
+            "null".to_string(),
+            line,
+        ))
     }
 }
