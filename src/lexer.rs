@@ -50,15 +50,7 @@ impl Lexer {
             '+' => Some(Token::new(TokenType::PLUS, ch.to_string(), "null".to_string(), line)),
             ';' => Some(Token::new(TokenType::SEMICOLON, ch.to_string(), "null".to_string(), line)),
             '*' => Some(Token::new(TokenType::STAR, ch.to_string(), "null".to_string(), line)),
-            '/' => {
-                if Some('/') == iter.peek().copied() {
-                    iter.next();
-                    Some(Token::new(TokenType::COMMENT, "//".to_string(), "null".to_string(), line))
-                } else {
-                    Some(Token::new(TokenType::SLASH, ch.to_string(), "null".to_string(), line))
-                }
-            },
-            '!' | '=' | '<' | '>' => self.scan_comparison_operator(line, ch, iter),
+            '!' | '=' | '<' | '>' | '/' => self.scan_comparison_operator(line, ch, iter),
             _ => None,
         };
         token
@@ -72,10 +64,12 @@ impl Lexer {
             ('!', Some('=')) => (TokenType::BANG_EQUAL, "!=".to_string()),
             ('<', Some('=')) => (TokenType::LESS_EQUAL, "<=".to_string()),
             ('>', Some('=')) => (TokenType::GREATER_EQUAL, ">=".to_string()),
+            ('/', Some('/')) => (TokenType::COMMENT, "//".to_string()),
             ('=', _) => (TokenType::EQUAL, ch.to_string()),
             ('!', _) => (TokenType::BANG, ch.to_string()),
             ('<', _) => (TokenType::LESS, ch.to_string()),
             ('>', _) => (TokenType::GREATER, ch.to_string()),
+            ('/', _) => (TokenType::SLASH, ch.to_string()),
             _ => unreachable!(),
         };
         if lexeme.len() > 1 {
