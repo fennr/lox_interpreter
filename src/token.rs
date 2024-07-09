@@ -6,6 +6,17 @@ pub enum TokenType {
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
     COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
     
+    BANG, BANG_EQUAL,
+    EQUAL, EQUAL_EQUAL,
+    GREATER, GREATER_EQUAL,
+    LESS, LESS_EQUAL,
+    
+    // Literals
+    IDENTIFIER, STRING, NUMBER,
+    
+    // Keywords
+    AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
+    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 
     EOL,
     EOF,
@@ -26,6 +37,16 @@ impl fmt::Display for TokenType {
             TokenType::SEMICOLON => "SEMICOLON",
             TokenType::SLASH => "SLASH",
             TokenType::STAR => "STAR",
+
+            TokenType::BANG => "BANG",
+            TokenType::BANG_EQUAL => "BANG_EQUAL",
+            TokenType::EQUAL => "EQUAL",
+            TokenType::EQUAL_EQUAL => "EQUAL_EQUAL",
+            TokenType::GREATER => "GREATER",
+            TokenType::GREATER_EQUAL => "GREATER_EQUAL",
+            TokenType::LESS => "LESS",
+            TokenType::LESS_EQUAL => "LESS_EQUAL",
+
             TokenType::EOL => "EOL",
             TokenType::EOF => "EOF",
             _ => "UNKNOWN",
@@ -39,11 +60,11 @@ pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
     pub literal: String,
-    pub line: u64,
+    pub line: usize,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, lexeme: String, literal: String, line: u64) -> Token {
+    pub fn new(token_type: TokenType, lexeme: String, literal: String, line: usize) -> Token {
         Token {
             token_type,
             lexeme,
