@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+use std::process::exit;
 mod lexer;
 mod token;
 
@@ -27,7 +28,8 @@ fn main() {
             // Uncomment this block to pass the first stage
             if !file_contents.is_empty() {
                 let lexer = lexer::Lexer::new(file_contents);
-                lexer.tokenize();
+                let result = lexer.tokenize();
+                exit(result)
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
