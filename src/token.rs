@@ -3,8 +3,8 @@ use core::fmt;
 #[derive(Debug, Clone)]
 pub enum TokenType {
     // Single character tokens
-    LEFT_PAREN,
-    RIGHT_PAREN,
+    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
+    
 
     EOL,
     EOF,
@@ -16,6 +16,8 @@ impl fmt::Display for TokenType {
         let display_val = match self {
             TokenType::LEFT_PAREN => "LEFT_PAREN",
             TokenType::RIGHT_PAREN => "RIGHT_PAREN",
+            TokenType::LEFT_BRACE => "LEFT_BRACE",
+            TokenType::RIGHT_BRACE => "RIGHT_BRACE",
             TokenType::EOL => "EOL",
             TokenType::EOF => "EOF",
             _ => "UNKNOWN",

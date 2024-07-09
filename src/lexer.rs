@@ -26,6 +26,8 @@ impl Lexer {
         let token = match ch {
             '(' => Token::new(TokenType::LEFT_PAREN, ch.to_string(), ch.to_string(), line_number),
             ')' => Token::new(TokenType::RIGHT_PAREN, ch.to_string(), ch.to_string(), line_number),
+            '{' => Token::new(TokenType::LEFT_BRACE, ch.to_string(), ch.to_string(), line_number),
+            '}' => Token::new(TokenType::RIGHT_BRACE, ch.to_string(), ch.to_string(), line_number),
             '\n' => {
                 line_number += 1;
                 Token::new(TokenType::EOL, TokenType::EOL.to_string(), TokenType::EOL.to_string(), line_number)
