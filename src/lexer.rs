@@ -20,17 +20,20 @@ impl Lexer {
 
     pub fn tokenize(&mut self) {
         let binding = self.source.clone();
-        for (i, line) in binding.split('\n').enumerate() {
-            let mut line_iter = line.chars().peekable();
-            while let Some(char) = line_iter.next() {
-                if let Some(t) = self.scan_token(i+1, char, &mut line_iter) {
-                    if t.token_type == TokenType::COMMENT {
+        for (line_index, line) in binding.lines().enumerate() {
+            let mut char_iter = line.chars().peekable();
+            while let Some(current_char) = char_iter.next() {
+                if current_char.is_whitespace() {
+                    continue;
+                }
+                if let Some(token) = self.scan_token(line_index + 1, current_char, &mut char_iter) {
+                    if token.token_type == TokenType::COMMENT {
                         break;
                     }
-                    println!("{} {} {}", t.token_type, t.lexeme, t.literal);
+                    println!("{:?} {} {}", token.token_type, token.lexeme, token.literal);
                 } else {
                     self.error_code = 65;
-                    eprintln!("[line {}] Error: Unexpected character: {}", i+1, char);
+                    eprintln!("[line {}] Error: Unexpected character: {}", line_index + 1, current_char);
                 }
             }
         }
