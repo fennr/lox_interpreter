@@ -1,6 +1,8 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+mod lexer;
+mod token;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -24,7 +26,8 @@ fn main() {
 
             // Uncomment this block to pass the first stage
             if !file_contents.is_empty() {
-                panic!("Scanner not implemented");
+                let lexer = lexer::Lexer::new(file_contents);
+                lexer.tokenize();
             } else {
                 println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
             }
